@@ -9,6 +9,14 @@ namespace OpenVic2
 {
     class MilitaryUnit
     {
+        public:
+
+        virtual ~MilitaryUnit();
+
+        // create method for the factory
+        virtual Content* create() const = 0;
+
+
         protected:
 
         //unique name of this unit
