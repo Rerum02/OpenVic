@@ -72,5 +72,7 @@ bin/*
 # MacOS stuff
 .DS_Store
 
+extension/src/openvic2/
+
 *.translation
 !game/common/map/*.obj
