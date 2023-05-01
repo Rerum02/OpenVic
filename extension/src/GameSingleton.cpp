@@ -35,6 +35,8 @@ void GameSingleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_mapmode_count"), &GameSingleton::get_mapmode_count);
 	ClassDB::bind_method(D_METHOD("get_mapmode_identifier", "index"), &GameSingleton::get_mapmode_identifier);
 	ClassDB::bind_method(D_METHOD("set_mapmode", "identifier"), &GameSingleton::set_mapmode);
+	ClassDB::bind_method(D_METHOD("get_selected_province_index"), &GameSingleton::get_selected_province_index);
+	ClassDB::bind_method(D_METHOD("set_selected_province", "index"), &GameSingleton::set_selected_province);
 
 	ClassDB::bind_method(D_METHOD("expand_building", "province_index", "building_type_identifier"), &GameSingleton::expand_building);
 
@@ -49,6 +51,7 @@ void GameSingleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("try_tick"), &GameSingleton::try_tick);
 
 	ADD_SIGNAL(MethodInfo("state_updated"));
+	ADD_SIGNAL(MethodInfo("province_selected", PropertyInfo(Variant::INT, "index")));
 }
 
 GameSingleton* GameSingleton::get_singleton() {
@@ -65,8 +68,8 @@ GameSingleton::GameSingleton() : game_manager{ [this]() { emit_signal("state_upd
 	Logger::set_info_func([](std::string&& str) { UtilityFunctions::print(str.c_str()); });
 	Logger::set_error_func([](std::string&& str) { UtilityFunctions::push_error(str.c_str()); });
 
-	static constexpr colour_t HIGH_ALPHA_VALUE = to_alpha_value(0.5f);
-	static constexpr colour_t LOW_ALPHA_VALUE = to_alpha_value(0.2f);
+	static constexpr colour_t HIGH_ALPHA_VALUE = float_to_alpha_value(0.7f);
+	static constexpr colour_t LOW_ALPHA_VALUE = float_to_alpha_value(0.4f);
 	using mapmode_t = std::pair<std::string, Mapmode::colour_func_t>;
 	const std::vector<mapmode_t> mapmodes = {
 		{ "mapmode_terrain", [](Map const&, Province const& province) -> colour_t {
@@ -81,9 +84,22 @@ GameSingleton::GameSingleton() : game_manager{ [this]() { emit_signal("state_upd
 			return NULL_COLOUR;
 		} },
 		{ "mapmode_index", [](Map const& map, Province const& province) -> colour_t {
-			const uint8_t f = static_cast<float>(province.get_index()) / static_cast<float>(map.get_province_count()) * 255.0f;
+			const colour_t f = fraction_to_colour_byte(province.get_index(), map.get_province_count());
 			return HIGH_ALPHA_VALUE | (f << 16) | (f << 8) | f;
-		} }
+		} },
+		{ "mapmode_adjacency", [](Map const& map, Province const& province) -> colour_t {
+			Province const* selected = map.get_selected_province();
+			if (selected != nullptr) {
+				if (selected == &province)
+					return HIGH_ALPHA_VALUE | 0xFFFFFF;
+				if (selected->has_adjacent(&province)) {
+					const colour_t f = fraction_to_colour_byte(selected->get_adjacent_index(&province),
+						selected->get_adjacent_province_count(), 0.5f, 0.9f);
+					return HIGH_ALPHA_VALUE | (f << 16) | (f << 8);
+				}
+			}
+			return HIGH_ALPHA_VALUE;
+		}}
 	};
 	for (mapmode_t const& mapmode : mapmodes)
 		game_manager.map.add_mapmode(mapmode.first, mapmode.second);
@@ -519,7 +535,19 @@ Error GameSingleton::set_mapmode(godot::String const& identifier) {
 		return FAILED;
 	}
 	mapmode_index = mapmode->get_index();
+	update_colour_image();
 	return OK;
+}
+
+
+int32_t GameSingleton::get_selected_province_index() const {
+	return game_manager.map.get_selected_province_index();
+}
+
+void GameSingleton::set_selected_province(int32_t index) {
+	game_manager.map.set_selected_province(index);
+	update_colour_image();
+	emit_signal("province_selected", index);
 }
 
 Error GameSingleton::expand_building(int32_t province_index, String const& building_type_identifier) {

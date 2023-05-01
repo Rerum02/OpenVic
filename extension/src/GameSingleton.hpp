@@ -90,6 +90,8 @@ namespace OpenVic2 {
 		int32_t get_mapmode_count() const;
 		godot::String get_mapmode_identifier(int32_t index) const;
 		godot::Error set_mapmode(godot::String const& identifier);
+		int32_t get_selected_province_index() const;
+		void set_selected_province(int32_t index);
 
 		godot::Error expand_building(int32_t province_index, godot::String const& building_type_identifier);
 

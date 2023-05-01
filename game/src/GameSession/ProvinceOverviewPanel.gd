@@ -1,7 +1,5 @@
 extends PanelContainer
 
-signal province_deselected
-
 @export var _province_name_label : Label
 @export var _region_name_label : Label
 @export var _life_rating_bar : ProgressBar
@@ -17,6 +15,7 @@ var _selected_index : int:
 var _province_info : Dictionary
 
 func _ready():
+	GameSingleton.province_selected.connect(_on_province_selected)
 	GameSingleton.state_updated.connect(update_info)
 	update_info()
 
@@ -94,4 +93,4 @@ func _on_province_selected(index : int) -> void:
 	_selected_index = index
 
 func _on_close_button_pressed() -> void:
-	province_deselected.emit()
+	GameSingleton.set_selected_province(0)
