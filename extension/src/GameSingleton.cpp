@@ -367,6 +367,8 @@ Error GameSingleton::load_map_images(String const& province_image_path, String c
 
 	if (update_colour_image() != OK) err = FAILED;
 
+	game_manager.map.generate_province_adjacencies();
+
 	return err;
 }
 
