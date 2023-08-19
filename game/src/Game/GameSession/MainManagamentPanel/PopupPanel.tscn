@@ -1,0 +1,80 @@
+[gd_scene load_steps=5 format=3 uid="uid://cigua67hys7yl"]
+
+[ext_resource type="Script" path="res://src/Game/GameSession/MainManagamentPanel/PopupPanel.gd" id="1_u7a8e"]
+[ext_resource type="Texture2D" uid="uid://cvfxeyui44yj6" path="res://art/ui/cancel.png" id="2_5e4k1"]
+
+[sub_resource type="GDScript" id="GDScript_c3oah"]
+script/source = "extends Panel
+
+func _ready():
+	self.set_size($\"../CloseButton/Sprite2D/Control\".get_size()*$\"../CloseButton/Sprite2D\".get_scale()) # Making it equal to sprite size
+	self.size.x = get_parent().size.x # Making it to be on whole top side
+"
+
+[sub_resource type="GDScript" id="GDScript_vtk7h"]
+script/source = "extends Button
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	self.set_size($Sprite2D/Control.get_size()*$Sprite2D.get_scale()) # Making it equal to sprite size
+	self.anchors_preset = 1 # Set it to the TOP RIGHT
+"
+
+[node name="PopupPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -125.0
+offset_top = -100.0
+offset_right = 125.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_u7a8e")
+
+[node name="Body" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = SubResource("GDScript_c3oah")
+
+[node name="CloseButton" type="Button" parent="."]
+layout_mode = 1
+offset_right = 9.0
+offset_bottom = 9.0
+alignment = 0
+script = SubResource("GDScript_vtk7h")
+
+[node name="Sprite2D" type="Sprite2D" parent="CloseButton"]
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("2_5e4k1")
+centered = false
+
+[node name="Control" type="Control" parent="CloseButton/Sprite2D"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="gui_input" from="TopPanel" to="." method="_on_top_panel_gui_input"]
+[connection signal="pressed" from="CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="CloseButton" to="." method="_on_button_pressed"]
