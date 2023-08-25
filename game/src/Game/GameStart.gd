@@ -19,9 +19,16 @@ func _initialize_game() -> void:
 	# into the mod's dir for a temporary fix)
 	# Usage: OpenVic --compatibility-mode <path>
 
-	var compatibility_mode_paths : PackedStringArray = [ArgumentParser.get_argument(&"compatibility-mode")]
+	var compatibility_mode_path : String = ArgumentParser.get_argument(&"compatibility-mode", "")
 
-	compatibility_mode_paths = ["C:/Program Files (x86)/Steam/steamapps/common/Victoria 2"]
+	if not compatibility_mode_path:
+		# TODO - non-Windows default paths
+		const default_path : String = "C:/Program Files (x86)/Steam/steamapps/common/Victoria 2"
+		compatibility_mode_path = default_path
+
+	var compatibility_mode_paths : PackedStringArray = [compatibility_mode_path]
+
+	# Example for adding mod paths
 	#compatibility_mode_paths.push_back("C:/Program Files (x86)/Steam/steamapps/common/Victoria 2/mod/TGC")
 
 	var start := Time.get_ticks_usec()

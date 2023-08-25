@@ -84,7 +84,7 @@ void GameSingleton::_bind_methods() {
 }
 
 void GameSingleton::draw_pie_chart(Ref<Image> image,
-	Array const& stopAngles, Array const& colours,	float radius,
+	Array const& stopAngles, Array const& colours, float radius,
 	Vector2 shadow_displacement, float shadow_tightness, float shadow_radius, float shadow_thickness,
 	Color trim_colour, float trim_size, float gradient_falloff, float gradient_base,
 	bool donut, bool donut_inner_trim, float donut_inner_radius) {
@@ -124,7 +124,7 @@ GameSingleton::~GameSingleton() {
 
 Error GameSingleton::setup_game() {
 	return_t ret = game_manager.setup();
-	if (dataloader.load_pop_history(game_manager, "history/pops/" + static_cast<std::string>(game_manager.get_today())) != SUCCESS) {
+	if (dataloader.load_pop_history(game_manager, "history/pops/" + game_manager.get_today().to_string()) != SUCCESS) {
 		ret = FAILURE;
 	}
 	return ERR(ret);
@@ -251,8 +251,8 @@ Dictionary GameSingleton::get_province_info_from_index(int32_t index) const {
 			building_dict[get_building_info_building_key()] = std_to_godot_string(building.get_identifier());
 			building_dict[get_building_info_level_key()] = static_cast<int32_t>(building.get_level());
 			building_dict[get_building_info_expansion_state_key()] = static_cast<int32_t>(building.get_expansion_state());
-			building_dict[get_building_info_start_date_key()] = std_to_godot_string(static_cast<std::string>(building.get_start_date()));
-			building_dict[get_building_info_end_date_key()] = std_to_godot_string(static_cast<std::string>(building.get_end_date()));
+			building_dict[get_building_info_start_date_key()] = std_to_godot_string(building.get_start_date().to_string());
+			building_dict[get_building_info_end_date_key()] = std_to_godot_string(building.get_end_date().to_string());
 			building_dict[get_building_info_expansion_progress_key()] = building.get_expansion_progress();
 
 			buildings_array[idx] = building_dict;
@@ -387,7 +387,7 @@ bool GameSingleton::can_decrease_speed() const {
 }
 
 String GameSingleton::get_longform_date() const {
-	return std_to_godot_string(static_cast<std::string>(game_manager.get_today()));
+	return std_to_godot_string(game_manager.get_today().to_string());
 }
 
 void GameSingleton::try_tick() {

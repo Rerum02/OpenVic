@@ -132,9 +132,13 @@ Error GameSingleton::load_defines_compatibility_mode(PackedStringArray const& fi
 	for (String const& path : file_paths) {
 		roots.push_back(godot_to_std_string(path));
 	}
-	dataloader.set_roots(roots);
 
 	Error err = OK;
+
+	if (dataloader.set_roots(roots) != SUCCESS) {
+		Logger::error("Failed to set dataloader roots!");
+		err = FAILED;
+	}
 
 	if (dataloader.load_defines(game_manager) != SUCCESS) {
 		UtilityFunctions::push_error("Failed to load defines!");
